@@ -77,14 +77,14 @@ public class CameraControls : MonoBehaviour
         m_RightStickHorizontal = Input.GetAxis("R_Horizontal");
         m_RightStickVertical = Input.GetAxis("R_Vertical");
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetButtonDown("Jump")  && m_CurrentCamState == CameraState.ThirdPerson)
         {
            SwitchToFirstPerson();
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetButtonDown("Fire3") && m_CurrentCamState == CameraState.FirstPerson)
         {
-           SwitchToThirdPerson();
+            SwitchToThirdPerson();
         }
 
     }

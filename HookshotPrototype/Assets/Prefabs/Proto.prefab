@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8703054031645863015}
   - component: {fileID: 1318285270472966520}
   - component: {fileID: 5225273805820821748}
+  - component: {fileID: 1722584804838516879}
   m_Layer: 0
   m_Name: Proto
   m_TagString: Player
@@ -79,6 +80,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 977b67e1d4a4a0349873e6d47d6d6ef1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_StrafeSpeed: 3
+  m_RotateSpeed: 90
 --- !u!114 &5225273805820821748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,6 +97,18 @@ MonoBehaviour:
   m_JumpForce: 50
   m_MovementSpeed: 4
   m_RotateSpeed: 90
+--- !u!114 &1722584804838516879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193417460107659818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8823093db7e1cf04ab9549d3dcfac3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8793203979376948227
 GameObject:
   m_ObjectHideFlags: 0
