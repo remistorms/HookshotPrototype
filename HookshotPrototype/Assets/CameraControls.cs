@@ -1,12 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class CameraControls : MonoBehaviour
 {
-    [SerializeField] private Transform target;
+    public CameraState m_CurrentCamState;
 
-    [SerializeField] private float m_MoveSpeed;
+    public event Action<CameraState> Evt_CamStateChanged = delegate { };
+
+    [SerializeField] private Camera m_MainCamera;
+    [SerializeField] private Transform m_TargetToFollow;
+    [SerializeField] private Transform m_FirstPersonCameraTransform;
+    [SerializeField] private Transform m_ThirdPersonCameraTransform;
+
+    [SerializeField] private float m_FollowSpeed;
     [SerializeField] private float m_RotateSpeed;
     [SerializeField] private float m_PitchSpeed;
 
@@ -14,30 +22,22 @@ public class CameraControls : MonoBehaviour
     private float m_RightStickHorizontal;
     private float m_RightStickVertical;
 
-    private GameObject m_CamParentObject;
-    private GameObject m_CamPitchObject;
-    private GameObject m_ThirdPersonPosition;
+    [SerializeField] private GameObject m_CamParentObject;
+    [SerializeField] private GameObject m_CamPitchObject;
 
     private void Awake()
     {
-        InitializeCamera();
+        m_MainCamera = Camera.main;
     }
 
-    public void InitializeCamera()
+    private void Start()
     {
-        m_CamParentObject = new GameObject("Cam Parent");
-        m_CamPitchObject = new GameObject("Cam Pitch");
-        m_ThirdPersonPosition = new GameObject("Third Person Position");
+        SwitchToThirdPerson();
+    }
 
-        m_CamParentObject.transform.position = Vector3.zero;
-        m_CamPitchObject.transform.position = Vector3.zero;
-        m_ThirdPersonPosition.transform.position = transform.position;
-
-        //Parents Objects
-        transform.SetParent(m_CamPitchObject.transform);
-        m_ThirdPersonPosition.transform.SetParent(m_CamPitchObject.transform);
-        m_CamPitchObject.transform.SetParent(m_CamParentObject.transform);
-
+    public void SetCameraTarget(Transform _target)
+    {
+        m_TargetToFollow = _target;
     }
 
     public Transform GetCameraParent()
@@ -48,8 +48,17 @@ public class CameraControls : MonoBehaviour
     private void Update()
     {
         DetectInput();
-        UpdateYaw();
-        UpdatePitch();
+        if (m_CurrentCamState == CameraState.ThirdPerson)
+        {
+            UpdateYaw();
+            UpdatePitch();
+        }
+        if (m_CurrentCamState == CameraState.FirstPerson)
+        {
+            LookAround();
+        }
+    
+
     }
 
     private void LateUpdate()
@@ -59,7 +68,7 @@ public class CameraControls : MonoBehaviour
 
     private void FollowTarget()
     {
-        Vector3 lerpedPosition = Vector3.Lerp(m_CamParentObject.transform.position, target.position, Time.deltaTime * m_MoveSpeed);
+        Vector3 lerpedPosition = Vector3.Lerp(m_CamParentObject.transform.position, m_TargetToFollow.position, Time.deltaTime * m_FollowSpeed);
         m_CamParentObject.transform.position = lerpedPosition;
     }
 
@@ -70,14 +79,40 @@ public class CameraControls : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-           // SwitchToFirstPerson();
+           SwitchToFirstPerson();
         }
 
         if (Input.GetKeyDown(KeyCode.T))
         {
-           // SwitchToThirdPerson();
+           SwitchToThirdPerson();
         }
 
+    }
+
+    private void SwitchToFirstPerson()
+    {
+        m_CurrentCamState = CameraState.FirstPerson;
+        m_MainCamera.transform.SetParent(m_FirstPersonCameraTransform);
+        m_MainCamera.transform.localPosition = Vector3.zero;
+        m_MainCamera.transform.localRotation = Quaternion.identity;
+        Evt_CamStateChanged( m_CurrentCamState );
+    }
+
+    private void SwitchToThirdPerson()
+    {
+        m_CurrentCamState = CameraState.ThirdPerson;
+
+        m_MainCamera.transform.SetParent(m_ThirdPersonCameraTransform);
+        m_MainCamera.transform.localPosition = Vector3.zero;
+        m_MainCamera.transform.localRotation = Quaternion.identity;
+        Evt_CamStateChanged(m_CurrentCamState);
+    }
+
+
+    private void LookAround()
+    {
+        transform.Rotate(Vector3.up, m_RotateSpeed * Time.deltaTime * Input.GetAxis("R_Horizontal"), Space.Self);
+        m_MainCamera.transform.Rotate(Vector3.right, m_RotateSpeed * Time.deltaTime * Input.GetAxis("R_Vertical"), Space.Self);
     }
 
     private void UpdateYaw()
@@ -87,7 +122,7 @@ public class CameraControls : MonoBehaviour
 
     private void UpdatePitch()
     {
-        m_CamPitchObject.transform.Rotate(Vector3.right, m_PitchSpeed * Time.deltaTime * m_RightStickVertical, Space.Self);
+        m_CamPitchObject.transform.Rotate(Vector3.right, -m_PitchSpeed * Time.deltaTime * m_RightStickVertical, Space.Self);
     }
 }
 

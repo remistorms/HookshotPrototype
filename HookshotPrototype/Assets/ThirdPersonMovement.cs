@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProtoMovement : MonoBehaviour
+public class ThirdPersonMovement : MonoBehaviour
 {
     [SerializeField] private float m_JumpForce = 50f;
     [SerializeField] private float m_MovementSpeed;
     [SerializeField] private float m_RotateSpeed;
     private CharacterController m_CharacterController;
+    private CameraControls m_CameraControls;
 
     private Transform camTransform;
     private Animator m_ProtoAnimator;
@@ -23,23 +24,26 @@ public class ProtoMovement : MonoBehaviour
 
     private void Start()
     {
-        camTransform = Camera.main.GetComponent<CameraControls>().GetCameraParent();
+        m_CameraControls = FindObjectOfType<CameraControls>();
+        camTransform = m_CameraControls.transform;
     }
 
     private void Update()
     {
         DetectInput();
         UpdateAnimator();
+
+        if (m_CameraControls.m_CurrentCamState == CameraState.ThirdPerson)
+        {
+            MoveProto();
+            RotateProto();
+        }
+
     }
 
     private void LateUpdate()
     {
         RotateProto();
-    }
-
-    private void FixedUpdate()
-    {
-        MoveProto();
     }
 
     //Detects input from Horizontal and Vertical Axis and stores it as a local variable
@@ -67,7 +71,6 @@ public class ProtoMovement : MonoBehaviour
 
     private void MoveProto()
     {
-        // m_ProtoRigidbody.MovePosition(transform.position + m_MoveDirection * m_MovementSpeed * Time.deltaTime);
         m_CharacterController.SimpleMove(m_MoveDirection * m_MovementSpeed );
     }
 
